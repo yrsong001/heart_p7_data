@@ -1,6 +1,6 @@
 export const myViewConfig = {
   "version": "1.0.15",
-  "name": "Heart Xenium Dataset P0",
+  "name": "Heart Xenium Dataset P7",
   "description": "",
   "datasets": [
     {
@@ -18,7 +18,7 @@ export const myViewConfig = {
             "images": [
               {
                 "name": "heart-xenium-raw",
-                "url": "https://heart-atlas-p0-test.s3.us-east-2.amazonaws.com/p0/heart-xenium-raw.zarr/",
+                "url": "https://heart-atlas-p0-test.s3.us-east-2.amazonaws.com/p7/heart-xenium-raw.zarr/",
                 "type": "zarr",
                 "metadata": {
                   "isBitmask": false,
@@ -57,7 +57,7 @@ export const myViewConfig = {
               },
               {
                 "name": "heart-xenium-label",
-                "url": "https://heart-atlas-p0-test.s3.us-east-2.amazonaws.com/p0/heart-xenium-label.zarr/",
+                "url": "https://heart-atlas-p0-test.s3.us-east-2.amazonaws.com/p7/heart-xenium-label.zarr/",
                 "type": "zarr",
                 "metadata": {
                   "isBitmask": true,
@@ -100,7 +100,7 @@ export const myViewConfig = {
         },
         {
           "fileType": "anndata.zarr",
-          "url": "https://heart-atlas-p0-test.s3.us-east-2.amazonaws.com/p0/heart-xenium-anndata.zarr/",
+          "url": "https://heart-atlas-p0-test.s3.us-east-2.amazonaws.com/p7/heart-xenium-anndata.zarr/",
           "options": {
             "obsLocations": {
               "path": "obsm/X_spatial"
