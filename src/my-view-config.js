@@ -1,3 +1,8 @@
+import { featureFilters } from './feature-filters';
+
+const DATA_BASE_URL = process.env.REACT_APP_DATA_BASE_URL || 'https://heart-atlas.s3.us-east-2.amazonaws.com';
+const dataUrl = (path) => `${DATA_BASE_URL}${path}`;
+
 export const myViewConfig = {
   "version": "1.0.15",
   "name": "Heart Xenium Dataset P7",
@@ -18,7 +23,7 @@ export const myViewConfig = {
             "images": [
               {
                 "name": "heart-xenium-raw",
-                "url": "https://heart-atlas.s3.us-east-2.amazonaws.com/p7/heart-xenium-raw.zarr/",
+                "url": dataUrl("/p7/heart-xenium-raw.zarr/"),
                 "type": "zarr",
                 "metadata": {
                   "isBitmask": false,
@@ -57,7 +62,7 @@ export const myViewConfig = {
               },
               {
                 "name": "heart-xenium-label",
-                "url": "https://heart-atlas.s3.us-east-2.amazonaws.com/p7/heart-xenium-label.zarr/",
+                "url": dataUrl("/p7/heart-xenium-label.zarr/"),
                 "type": "zarr",
                 "metadata": {
                   "isBitmask": true,
@@ -100,7 +105,7 @@ export const myViewConfig = {
         },
         {
           "fileType": "anndata.zarr",
-          "url": "https://heart-atlas.s3.us-east-2.amazonaws.com/p7/heart-xenium-anndata.zarr/",
+          "url": dataUrl("/p7/heart-xenium-anndata.zarr/"),
           "options": {
             "obsLocations": {
               "path": "obsm/X_spatial"
@@ -144,27 +149,29 @@ export const myViewConfig = {
     "embeddingType": {
       "X_UMAP": "X_UMAP",
       "X_PCA": "X_PCA"
+    },
+    "featureFilter": {
+      "genes": featureFilters.genes,
+      "cc": featureFilters.cc,
+      "tf": featureFilters.tf
+    },
+    "obsSetExpansion": {
+      "cellTypes": [
+        [
+          "Cytospace.final.anno"
+        ]
+      ]
     }
   },
   "layout": [
-    {
-      "component": "layerController",
-      "coordinationScopes": {
-        "dataset": "A"
-      },
-      "x": 0,
-      "y": 0,
-      "w": 3,
-      "h": 12
-    },
     {
       "component": "spatial",
       "coordinationScopes": {
         "dataset": "A"
       },
-      "x": 3,
+      "x": 0,
       "y": 0,
-      "w": 3,
+      "w": 6,
       "h": 12
     },
     {
@@ -181,7 +188,11 @@ export const myViewConfig = {
     {
       "component": "obsSets",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsSetExpansion": "cellTypes"
+      },
+      "props": {
+        "title": "Cell Types"
       },
       "x": 6,
       "y": 6,
@@ -191,12 +202,47 @@ export const myViewConfig = {
     {
       "component": "featureList",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "featureFilter": "genes"
+      },
+      "props": {
+        "title": "Gene List",
+        "helpText": "The list displays genes included in postnatal heart."
       },
       "x": 9,
       "y": 0,
       "w": 3,
-      "h": 12
+      "h": 4
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "featureFilter": "cc"
+      },
+      "props": {
+        "title": "Cell Communication List",
+        "helpText": "The list displays ligand-receptor pairs (both direct and indirect communication) included in postnatal heart."
+      },
+      "x": 9,
+      "y": 4,
+      "w": 3,
+      "h": 4
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "featureFilter": "tf"
+      },
+      "props": {
+        "title": "TF List",
+        "helpText": "The list displays transcription factors included in postnatal heart."
+      },
+      "x": 9,
+      "y": 8,
+      "w": 3,
+      "h": 4
     }
   ],
   "initStrategy": "auto"
