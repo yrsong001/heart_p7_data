@@ -180,6 +180,10 @@ export const myViewConfig = {
         "dataset": "A",
         "embeddingType": "X_UMAP"
       },
+      "props": {
+        "title": "UMAP",
+        "helpText": "It displays two-dimensional (pre-computed) dimensionality reduction results (UMAP). Each point on the scatterplot represents a cell with a matched location on the spatial view. Cell type colors are shown in the Cell Types / Legend panel."
+      },
       "x": 6,
       "y": 0,
       "w": 3,
@@ -192,7 +196,8 @@ export const myViewConfig = {
         "obsSetExpansion": "cellTypes"
       },
       "props": {
-        "title": "Cell Types"
+        "title": "Cell Types / Legend",
+        "helpText": "The color swatches label the cell types shown in the UMAP and spatial views. Use the checkboxes to show or hide cell types."
       },
       "x": 6,
       "y": 6,
