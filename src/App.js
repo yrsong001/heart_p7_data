@@ -19,6 +19,30 @@ const hasUrlSelection = () => {
 };
 
 const fullAtlasHref = () => `${window.location.origin}${window.location.pathname}`;
+const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const cellTypeNodes = () => Array.from(document.querySelectorAll('.rc-tree-treenode.level-1-treenode'));
+const clickCellTypeCheckbox = (checkbox) => {
+  ['mousedown', 'mouseup', 'click'].forEach((type) => {
+    checkbox.dispatchEvent(new MouseEvent(type, { bubbles: true, cancelable: true, view: window }));
+  });
+};
+
+const setCellTypeSelection = async (shouldSelect) => {
+  let guard = 0;
+  while (guard < 80) {
+    const node = cellTypeNodes().find((item) => {
+      const checkbox = item.querySelector('.rc-tree-checkbox');
+      return checkbox && checkbox.classList.contains('rc-tree-checkbox-checked') !== shouldSelect;
+    });
+    const checkbox = node?.querySelector('.rc-tree-checkbox');
+    if (!(checkbox instanceof HTMLElement)) {
+      break;
+    }
+    clickCellTypeCheckbox(checkbox);
+    guard += 1;
+    await sleep(80);
+  }
+};
 
 function useWebatlasUiTweaks() {
   useEffect(() => {
@@ -52,11 +76,31 @@ function useWebatlasUiTweaks() {
           const link = document.createElement('a');
           link.className = 'webatlas-full-atlas-link';
           link.href = fullAtlasHref();
-          link.textContent = `Full ${stageLabel} atlas`;
-          link.title = `Clear selected feature/cell type and return to the full ${stageLabel} atlas`;
+          link.textContent = 'Clear selection';
+          link.title = `Clear selected gene/TF/CC or cell type and return to the full ${stageLabel} atlas`;
           link.setAttribute('aria-label', link.title);
           toolbar.prepend(link);
         }
+      }
+
+      const cellTypesBanner = Array.from(document.querySelectorAll('[role="banner"]'))
+        .find(banner => banner.querySelector('[role="heading"]')?.textContent?.includes('Cell Types / Legend'));
+      const cellTypesToolbar = cellTypesBanner?.querySelector('[role="toolbar"]');
+      if (cellTypesToolbar && !cellTypesToolbar.querySelector('.webatlas-cell-type-actions')) {
+        const actions = document.createElement('span');
+        actions.className = 'webatlas-cell-type-actions';
+        [
+          ['Select all', true],
+          ['Deselect all', false],
+        ].forEach(([label, shouldSelect]) => {
+          const button = document.createElement('button');
+          button.className = 'webatlas-cell-type-action';
+          button.type = 'button';
+          button.textContent = label;
+          button.addEventListener('click', () => setCellTypeSelection(shouldSelect));
+          actions.append(button);
+        });
+        cellTypesToolbar.prepend(actions);
       }
 
       if (!didHandleCellTypesExpansion) {
