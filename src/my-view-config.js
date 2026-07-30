@@ -3,7 +3,121 @@ import { featureFilters } from './feature-filters';
 const DATA_BASE_URL = process.env.REACT_APP_DATA_BASE_URL || 'https://heart-atlas.s3.us-east-2.amazonaws.com';
 const dataUrl = (path) => `${DATA_BASE_URL}${path}`;
 
-export const myViewConfig = {
+const P7_CELL_TYPES = [
+  'Ankrd1.CM',
+  'Blood',
+  'Col8a1.Fib',
+  'Ddc.CM',
+  'Epic',
+  'Gfpt2.Fib',
+  'Neur',
+  'Peri',
+  'Postn.Fib',
+  'SMC',
+  'Slit2.CM',
+  'a.CM',
+  'arteriole.EC',
+  'av.CM',
+  'cap.EC',
+  'cap.EC.High.Myo.',
+  'endocardial.EC',
+  'p.CM',
+  'p.EC',
+  'p.Fib',
+  'v.CM',
+  'valve.Fib',
+];
+
+const hasFeature = (value) => (
+  featureFilters.genes.includes(value)
+  || featureFilters.tf.includes(value)
+  || featureFilters.cc.includes(value)
+);
+
+const urlSelection = () => {
+  if (typeof window === 'undefined') {
+    return { feature: '', cellType: '' };
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const feature = params.get('feature') || '';
+  const cellType = params.get('cellType') || '';
+
+  return {
+    feature: hasFeature(feature) ? feature : '',
+    cellType: P7_CELL_TYPES.includes(cellType) ? cellType : '',
+  };
+};
+
+const withUrlSelection = (config) => {
+  const { feature, cellType } = urlSelection();
+  if (!feature && !cellType) {
+    return config;
+  }
+
+  const selectedScopesForComponent = (component) => {
+    const featureScopes = feature ? {
+      featureSelection: 'urlFeature',
+      obsColorEncoding: 'urlFeature',
+      ...(['spatial', 'scatterplot'].includes(component) ? {
+        featureValueColormap: 'urlFeature',
+        featureValueColormapRange: 'urlFeature',
+      } : {}),
+    } : {};
+
+    return {
+      ...featureScopes,
+      ...(cellType ? { obsSetSelection: 'urlCellType' } : {}),
+    };
+  };
+
+  return {
+    ...config,
+    uid: `p7-${feature || 'all'}-${cellType || 'all'}`,
+    coordinationSpace: {
+      ...config.coordinationSpace,
+      ...(feature ? {
+        featureSelection: {
+          urlFeature: [feature],
+        },
+        obsColorEncoding: {
+          urlFeature: 'geneSelection',
+        },
+        featureValueColormap: {
+          urlFeature: 'plasma',
+        },
+        featureValueColormapRange: {
+          urlFeature: [0, 1],
+        },
+      } : {}),
+      ...(cellType ? {
+        obsSetSelection: {
+          urlCellType: [
+            [
+              'Cytospace.final.anno',
+              cellType,
+            ],
+          ],
+        },
+      } : {}),
+    },
+    layout: config.layout.map((view) => {
+      if (!['spatial', 'scatterplot', 'featureList', 'obsSets'].includes(view.component)) {
+        return view;
+      }
+
+      return {
+        ...view,
+        coordinationScopes: {
+          ...view.coordinationScopes,
+          ...selectedScopesForComponent(view.component),
+        },
+      };
+    }),
+  };
+};
+
+const baseViewConfig = {
   "version": "1.0.15",
   "name": "Heart Xenium Dataset P7",
   "description": "",
@@ -252,3 +366,5 @@ export const myViewConfig = {
   ],
   "initStrategy": "auto"
 };
+
+export const myViewConfig = withUrlSelection(baseViewConfig);
