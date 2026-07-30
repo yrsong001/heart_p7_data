@@ -11,12 +11,22 @@ const featureListInfoByTitle = {
   'TF List': itemCount(featureFilters.tf),
 };
 
+const stageLabel = myViewConfig.name.match(/P\d+/i)?.[0].toUpperCase() || 'P7';
+
+const hasUrlSelection = () => {
+  const params = new URLSearchParams(window.location.search);
+  return Boolean(params.get('feature') || params.get('cellType'));
+};
+
+const fullAtlasHref = () => `${window.location.origin}${window.location.pathname}`;
+
 function useWebatlasUiTweaks() {
   useEffect(() => {
     if (typeof document === 'undefined' || typeof MutationObserver === 'undefined') {
       return undefined;
     }
 
+    const selectionActive = hasUrlSelection();
     let didHandleCellTypesExpansion = false;
 
     const applyTweaks = () => {
@@ -29,6 +39,25 @@ function useWebatlasUiTweaks() {
           note.setAttribute('title', info);
         }
       });
+
+      document.querySelectorAll('svg[width="100"][height="36"]').forEach((legendSvg) => {
+        legendSvg.parentElement?.classList.add('webatlas-feature-legend-lg');
+      });
+
+      if (selectionActive) {
+        const spatialBanner = Array.from(document.querySelectorAll('[role="banner"]'))
+          .find(banner => banner.querySelector('[role="heading"]')?.textContent?.includes('Xenium spatial'));
+        const toolbar = spatialBanner?.querySelector('[role="toolbar"]');
+        if (toolbar && !toolbar.querySelector('.webatlas-full-atlas-link')) {
+          const link = document.createElement('a');
+          link.className = 'webatlas-full-atlas-link';
+          link.href = fullAtlasHref();
+          link.textContent = `Full ${stageLabel} atlas`;
+          link.title = `Clear selected feature/cell type and return to the full ${stageLabel} atlas`;
+          link.setAttribute('aria-label', link.title);
+          toolbar.prepend(link);
+        }
+      }
 
       if (!didHandleCellTypesExpansion) {
         const cellTypeButton = Array.from(document.querySelectorAll('button'))
